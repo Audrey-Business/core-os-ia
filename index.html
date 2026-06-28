@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORE OS IA — Kemora Academy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg: #080808;
+  --surface: #101010;
+  --surface2: #161616;
+  --surface3: #1e1e1e;
+  --border: #242424;
+  --border2: #2e2e2e;
+  --gold: #C9A84C;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-border: rgba(201,168,76,0.3);
+  --gold-bright: #e0bc6a;
+  --text: #e8e8e8;
+  --text-dim: #888;
+  --text-muted: #555;
+  --green: #52c27a;
+  --sidebar-w: 300px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; display: flex; flex-direction: column; }
+
+/* TOP BAR */
+.topbar {
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.topbar-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.topbar-sep { width: 1px; height: 20px; background: var(--border2); }
+.topbar-title { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.topbar-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  color: var(--gold);
+  padding: 3px 10px;
+  letter-spacing: 0.06em;
+}
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* PROGRESS */
+.progress-bar-wrap {
+  height: 2px;
+  background: var(--surface3);
+  flex-shrink: 0;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* LAYOUT */
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sidebar-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.sidebar-progress-text {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.sidebar-progress-text span { color: var(--gold); font-weight: 600; }
+
+.module-block { border-bottom: 1px solid var(--border); }
+.module-title {
+  padding: 14px 20px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.module-title .mod-n {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  color: var(--gold);
+  padding: 1px 6px;
+  font-size: 9px;
+}
+
+.lesson-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 10px 20px 10px 28px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: var(--text-dim);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.lesson-btn:hover { background: var(--surface2); color: var(--text); }
+.lesson-btn.active {
+  background: var(--gold-dim);
+  border-left: 2px solid var(--gold);
+  color: var(--gold);
+  padding-left: 26px;
+}
+.lesson-btn.done { color: var(--green); }
+.lesson-btn.done .check { color: var(--green); }
+.lesson-icon { font-size: 10px; opacity: 0.5; flex-shrink: 0; }
+.lesson-btn.active .lesson-icon { opacity: 1; }
+.check { width: 16px; height: 16px; flex-shrink: 0; text-align: center; }
+
+/* CONTENT */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+.content-area::-webkit-scrollbar { width: 6px; }
+.content-area::-webkit-scrollbar-track { background: transparent; }
+.content-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.lesson-page { display: none; padding: 48px 64px 80px; max-width: 820px; }
+.lesson-page.active { display: block; }
+
+/* Lesson header */
+.lp-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.lp-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.lp-subtitle {
+  font-size: 15px;
+  color: var(--text-dim);
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Content elements */
+.lp-body { font-size: 15px; line-height: 1.85; color: #c8c8c8; }
+.lp-body p { margin-bottom: 20px; }
+.lp-body strong { color: var(--text); font-weight: 600; }
+
+.lp-h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 36px 0 16px;
+  padding-left: 14px;
+  border-left: 3px solid var(--gold);
+  letter-spacing: -0.01em;
+}
+.lp-h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 28px 0 10px;
+  font-family: 'Space Mono', monospace;
+}
+
+.lp-callout {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  padding: 20px 24px;
+  margin: 24px 0;
+  font-size: 14px;
+  color: #d4c08a;
+  line-height: 1.8;
+}
+.lp-callout strong { color: var(--gold-bright); }
+
+.lp-quote {
+  border-left: 3px solid var(--gold);
+  padding: 16px 24px;
+  margin: 32px 0;
+  font-size: 17px;
+  font-style: italic;
+  color: var(--gold);
+  background: var(--gold-dim);
+}
+
+.lp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+.lp-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+}
+.lp-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.lp-card-body { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+.lp-steps { margin: 20px 0; }
+.lp-step {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+.lp-step-n {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.lp-step-content { flex: 1; padding-top: 4px; }
+.lp-step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.lp-step-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+.lp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 13px;
+}
+.lp-table th {
+  background: var(--surface3);
+  padding: 10px 16px;
+  text-align: left;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--gold-border);
+}
+.lp-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.lp-table tr:last-child td { border-bottom: none; }
+.lp-table tr:hover td { background: var(--surface2); }
+
+.lp-checklist { margin: 20px 0; }
+.lp-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.lp-check-item:last-child { border-bottom: none; }
+.lp-check-box {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--gold);
+  transition: all 0.15s;
+}
+.lp-check-box.checked { background: var(--gold); color: #000; border-color: var(--gold); }
+
+.lp-prompt {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--gold);
+  padding: 16px 20px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.8;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.lp-prompt-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.lp-day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin: 24px 0;
+}
+.lp-day {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 14px 10px;
+  text-align: center;
+}
+.lp-day-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.lp-day-title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.lp-day-desc { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+
+.lp-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+.lp-stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  text-align: center;
+}
+.lp-stat-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 6px;
+}
+.lp-stat-label { font-size: 12px; color: var(--text-dim); }
+
+.lp-tool {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.lp-tool-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.lp-tool-content { flex: 1; }
+.lp-tool-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.lp-tool-use { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.6; }
+.lp-tool-case { font-size: 11px; color: var(--gold); font-style: italic; }
+
+/* NAV BOTTOM */
+.lesson-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  padding: 12px 20px;
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  flex: 1;
+  justify-content: center;
+}
+.nav-btn:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+.nav-btn.primary {
+  background: var(--gold-dim);
+  border-color: var(--gold-border);
+  color: var(--gold);
+}
+.nav-btn.primary:hover { background: rgba(201,168,76,0.2); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* WELCOME PAGE */
+.welcome-hero {
+  background: linear-gradient(135deg, #0d0d0d 0%, #111008 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 64px 48px;
+  max-width: 820px;
+}
+.welcome-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.welcome-title {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.welcome-title em { color: var(--gold); font-style: normal; }
+.welcome-sub {
+  font-size: 17px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 560px;
+  margin-bottom: 32px;
+}
+.welcome-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.welcome-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.welcome-meta-item span { color: var(--text-dim); }
+.welcome-body {
+  padding: 48px 64px 80px;
+  max-width: 820px;
+}
+.start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 14px 28px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s;
+  margin-top: 24px;
+}
+.start-btn:hover { background: var(--gold-bright); }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 200;
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .hamburger { display: block; }
+  .lesson-page, .welcome-hero, .welcome-body { padding: 24px 20px 60px; }
+  .lp-grid, .lp-stat-row { grid-template-columns: 1fr; }
+  .lp-day-grid { grid-template-columns: repeat(2, 1fr); }
+  .welcome-title { font-size: 30px; }
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 150;
+  }
+  .overlay.open { display: block; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="topbar-logo">Kemora Academy</div>
+  <div class="topbar-sep"></div>
+  <div class="topbar-title">CORE OS IA</div>
+  <div class="topbar-badge">97€ · Formation</div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-label">Progression</div>
+    <div class="sidebar-progress-text"><span id="doneCount">0</span> / 14 leçons complétées</div>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">00</span> Bienvenue</div>
+    <button class="lesson-btn active" data-id="l0" onclick="go('l0')">
+      <span class="check" id="chk-l0">○</span>
+      <span>Introduction & Promesse</span>
+    </button>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">01</span> Comprendre le Business Automatisé</div>
+    <button class="lesson-btn" data-id="l1" onclick="go('l1')">
+      <span class="check" id="chk-l1">○</span>
+      <span>L'Évolution à l'Ère de l'IA</span>
+    </button>
+    <button class="lesson-btn" data-id="l2" onclick="go('l2')">
+      <span class="check" id="chk-l2">○</span>
+      <span>Les 5 Fondations</span>
+    </button>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">02</span> Ce qui Bloque ta Croissance</div>
+    <button class="lesson-btn" data-id="l3" onclick="go('l3')">
+      <span class="check" id="chk-l3">○</span>
+      <span>Les 5 Erreurs qui Empêchent de Scaler</span>
+    </button>
+    <button class="lesson-btn" data-id="l4" onclick="go('l4')">
+      <span class="check" id="chk-l4">○</span>
+      <span>Comment l'IA T'aide au Quotidien</span>
+    </button>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">03</span> Outils & Premiers Systèmes</div>
+    <button class="lesson-btn" data-id="l5" onclick="go('l5')">
+      <span class="check" id="chk-l5">○</span>
+      <span>Les 10 Outils IA Indispensables</span>
+    </button>
+    <button class="lesson-btn" data-id="l6" onclick="go('l6')">
+      <span class="check" id="chk-l6">○</span>
+      <span>Construire ton Premier Système</span>
+    </button>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">04</span> Passer à l'Action</div>
+    <button class="lesson-btn" data-id="l7" onclick="go('l7')">
+      <span class="check" id="chk-l7">○</span>
+      <span>Mini Plan d'Action 7 Jours</span>
+    </button>
+    <button class="lesson-btn" data-id="l8" onclick="go('l8')">
+      <span class="check" id="chk-l8">○</span>
+      <span>Étude de Cas Détaillée</span>
+    </button>
+    <button class="lesson-btn" data-id="l9" onclick="go('l9')">
+      <span class="check" id="chk-l9">○</span>
+      <span>Construire ta Machine Digitale</span>
+    </button>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">05</span> Bonus & Ressources</div>
+    <button class="lesson-btn" data-id="l10" onclick="go('l10')">
+      <span class="check" id="chk-l10">○</span>
+      <span>25 Prompts IA Prêts à l'Emploi</span>
+    </button>
+    <button class="lesson-btn" data-id="l11" onclick="go('l11')">
+      <span class="check" id="chk-l11">○</span>
+      <span>Audit Rapide de ton Business</span>
+    </button>
+    <button class="lesson-btn" data-id="l12" onclick="go('l12')">
+      <span class="check" id="chk-l12">○</span>
+      <span>Checklist Système</span>
+    </button>
+    <button class="lesson-btn" data-id="l13" onclick="go('l13')">
+      <span class="check" id="chk-l13">○</span>
+      <span>Planificateur Hebdomadaire</span>
+    </button>
+  </div>
+
+  <div class="module-block">
+    <div class="module-title"><span class="mod-n">FIN</span> Conclusion</div>
+    <button class="lesson-btn" data-id="l14" onclick="go('l14')">
+      <span class="check" id="chk-l14">○</span>
+      <span>L'Ère des Systèmes a Commencé</span>
+    </button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-area" id="contentArea">
+
+  <!-- WELCOME -->
+  <div id="l0" class="lesson-page active">
+    <div class="welcome-hero">
+      <div class="welcome-tag">Kemora Academy · CORE OS IA</div>
+      <div class="welcome-title">La <em>Nouvelle Ère</em><br>du Business Digital</div>
+      <div class="welcome-sub">Apprends à construire un business automatisé, à utiliser l'IA comme multiplicateur de temps, et à créer des systèmes qui travaillent pour toi 24h/24.</div>
+      <div class="welcome-meta">
+        <div class="welcome-meta-item">📚 <span>9 chapitres</span></div>
+        <div class="welcome-meta-item">🎁 <span>4 bonus</span></div>
+        <div class="welcome-meta-item">🛠️ <span>10 outils IA</span></div>
+        <div class="welcome-meta-item">⚡ <span>Plan 7 jours</span></div>
+      </div>
+    </div>
+    <div class="welcome-body">
+      <div class="lp-callout">
+        <strong>Bienvenue dans CORE OS IA.</strong><br><br>
+        Le monde du business digital évolue à une vitesse jamais vue auparavant. Chaque jour, de nouveaux outils apparaissent, les algorithmes changent, les habitudes des consommateurs se transforment et les méthodes qui fonctionnaient hier deviennent parfois obsolètes aujourd'hui.
+      </div>
+
+      <div class="lp-h2">L'ancienne équation est dépassée</div>
+      <div class="lp-body"><p>Pendant longtemps, la croissance d'un business reposait sur une logique simple :</p></div>
+
+      <div class="lp-grid">
+        <div class="lp-card">
+          <div class="lp-card-title">❌ Avant</div>
+          <div class="lp-card-body">Plus de temps travaillé = plus de résultats. Tu travailles 12h, tu produis plus. Tu t'arrêtes, tout s'arrête.</div>
+        </div>
+        <div class="lp-card">
+          <div class="lp-card-title">✓ Maintenant</div>
+          <div class="lp-card-body">La différence n'est plus le talent. C'est la structure. Les meilleurs entrepreneurs construisent des systèmes.</div>
+        </div>
+      </div>
+
+      <div class="lp-h2">Ce que tu vas apprendre</div>
+      <div class="lp-steps">
+        <div class="lp-step">
+          <div class="lp-step-n">01</div>
+          <div class="lp-step-content">
+            <div class="lp-step-title">Comprendre les business automatisés modernes</div>
+            <div class="lp-step-desc">Saisir comment fonctionnent les systèmes qui produisent des résultats en continu, même sans ton intervention.</div>
+          </div>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-n">02</div>
+          <div class="lp-step-content">
+            <div class="lp-step-title">Identifier les tâches qui freinent ta croissance</div>
+            <div class="lp-step-desc">Repérer ce qui te ralentit et ce qui peut être délégué à un système ou à l'IA.</div>
+          </div>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-n">03</div>
+          <div class="lp-step-content">
+            <div class="lp-step-title">Construire des systèmes simples et efficaces</div>
+            <div class="lp-step-desc">Poser les bases d'une machine digitale capable de fonctionner chaque jour, sans dépendre de toi.</div>
+          </div>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-n">04</div>
+          <div class="lp-step-content">
+            <div class="lp-step-title">Utiliser l'IA sans perdre en qualité</div>
+            <div class="lp-step-desc">Gagner du temps tout en maintenant une excellence dans chaque production.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-quote">« L'IA ne te rend pas plus puissante. Elle amplifie ce que tu es déjà. »</div>
+
+      <button class="start-btn" onclick="go('l1')">Commencer la formation →</button>
+
+      <div class="lesson-nav">
+        <button class="nav-btn primary" onclick="markDone('l0'); go('l1')">Marquer comme lu · Leçon suivante →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- L1 -->
+  <div id="l1" class="lesson-page">
+    <div class="lp-eyebrow">Module 01 · Leçon 1</div>
+    <div class="lp-title">L'Évolution du Business à l'Ère de l'IA</div>
+    <div class="lp-subtitle">Comprendre la transformation profonde qui redefínit les règles du jeu digital.</div>
+    <div class="lp-body">
+      <p>L'intelligence artificielle n'est pas une tendance. Ce n'est pas une nouveauté temporaire. C'est une transformation profonde de la manière dont les entreprises créent, vendent et communiquent.</p>
+    </div>
+
+    <div class="lp-h2">L'IA comme multiplicateur de temps</div>
+    <table class="lp-table">
+      <tr><th>Tâche</th><th>Avant l'IA</th><th>Après l'IA</th></tr>
+      <tr><td>Création de contenu</td><td>3 heures</td><td><strong style="color:var(--green)">20 minutes</strong></td></tr>
+      <tr><td>Réponses emails</td><td>2 heures</td><td><strong style="color:var(--green)">15 minutes</strong></td></tr>
+      <tr><td>Analyse performances</td><td>Analyse manuelle</td><td><strong style="color:var(--green)">Tableau automatisé</strong></td></tr>
+      <tr><td>Idées de contenu</td><td>30 min de réflexion</td><td><strong style="color:var(--green)">Instantané</strong></td></tr>
+    </table>
+
+    <div class="lp-callout">
+      <strong>L'objectif n'est pas de supprimer l'humain.</strong> L'objectif est de supprimer la friction. L'IA remplace la répétition — pas la créativité.
+    </div>
+
+    <div class="lp-h2">Exercice — Les deux colonnes</div>
+    <div class="lp-body"><p>Prends une feuille et divise-la en deux colonnes :</p></div>
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="lp-card-title">Colonne 1 — Ce que je fais</div>
+        <div class="lp-card-body">Liste toutes les tâches que tu réalises manuellement et régulièrement dans ton activité. Sois exhaustive.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Colonne 2 — Ce qu'un système peut faire</div>
+        <div class="lp-card-body">Identifie lesquelles sont répétitives et pourraient fonctionner sans ton intervention quotidienne.</div>
+      </div>
+    </div>
+
+    <div class="lp-h2">Les 3 questions essentielles</div>
+    <div class="lp-steps">
+      <div class="lp-step">
+        <div class="lp-step-n">?</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Quelles tâches prennent le plus de temps dans mon activité ?</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">?</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Lesquelles sont répétitives chaque semaine ?</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">?</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Lesquelles pourraient fonctionner sans mon intervention quotidienne ?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-quote">« Ce ne sont pas les plus talentueux qui gagnent. Ce sont les plus structurés. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l0')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l1'); go('l2')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L2 -->
+  <div id="l2" class="lesson-page">
+    <div class="lp-eyebrow">Module 01 · Leçon 2</div>
+    <div class="lp-title">Les 5 Fondations d'un Business Automatisé</div>
+    <div class="lp-subtitle">Sans structure, l'automatisation accélère le chaos au lieu de créer de la croissance.</div>
+
+    <div class="lp-callout">
+      Un business solide repose sur des fondations solides. Ces cinq éléments forment l'ossature de toute activité digitale durable.
+    </div>
+
+    <div class="lp-steps">
+      <div class="lp-step">
+        <div class="lp-step-n">01</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">La Vision</div>
+          <div class="lp-step-desc">Avant d'automatiser quoi que ce soit, tu dois savoir où tu vas. Sans direction claire, aucun système ne fonctionne durablement.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">02</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">La Structure</div>
+          <div class="lp-step-desc">Une entreprise fonctionne grâce à des flux. Chaque étape doit être documentée pour que le système soit clair et répétable.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">03</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Le Contenu</div>
+          <div class="lp-step-desc">Le contenu reste le carburant de ton système. L'IA peut produire plus vite, mais elle ne remplace pas ton positionnement ni ton identité.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">04</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">L'Automatisation</div>
+          <div class="lp-step-desc">Automatiser ne signifie pas utiliser cinquante outils. Cela signifie connecter intelligemment les bons éléments au bon moment.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">05</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Le Suivi et l'Amélioration</div>
+          <div class="lp-step-desc">Ce qui se mesure s'améliore. Un système performant évolue constamment grâce à des données précises.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-h2">Le flux de base — Exemple</div>
+    <div class="lp-callout">
+      Contenu attractif → Prospect qualifié → Email de nurturing → Offre claire → Client → Conversion
+    </div>
+
+    <div class="lp-h2">KPI essentiels à suivre</div>
+    <table class="lp-table">
+      <tr><th>Indicateur</th><th>Ce qu'il mesure</th></tr>
+      <tr><td>Taux de clic</td><td>Attractivité de ton contenu</td></tr>
+      <tr><td>Taux d'ouverture email</td><td>Qualité de tes objets et de ta relation</td></tr>
+      <tr><td>Coût d'acquisition</td><td>Rentabilité de tes actions marketing</td></tr>
+      <tr><td>Taux de conversion</td><td>Efficacité de ton tunnel de vente</td></tr>
+      <tr><td>Revenu moyen par client</td><td>Valeur de ton offre</td></tr>
+    </table>
+
+    <div class="lp-quote">« Automatiser sans structure revient à construire un château sur du sable. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l1')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l2'); go('l3')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L3 -->
+  <div id="l3" class="lesson-page">
+    <div class="lp-eyebrow">Module 02 · Leçon 1</div>
+    <div class="lp-title">Les 5 Erreurs qui Empêchent de Scaler</div>
+    <div class="lp-subtitle">La croissance ne se bloque pas par manque d'effort — elle se bloque par mauvaise structure.</div>
+
+    <div class="lp-h2">Erreur 1 — Tout faire soi-même</div>
+    <div class="lp-body"><p>L'illusion du contrôle absolu ralentit énormément la progression. Tu réponds aux messages, tu publies, tu crées, tu organises, tu relances, tu analyses. Résultat : ton activité dépend entièrement de toi.</p></div>
+    <div class="lp-callout"><strong>Symptôme :</strong> Tu ne peux pas t'absenter deux jours sans que tout s'arrête.<br><strong>Solution :</strong> Liste immédiatement 3 tâches répétitives par semaine. Ce sont tes premiers candidats à l'automatisation.</div>
+
+    <div class="lp-h2">Erreur 2 — Changer d'outil constamment</div>
+    <div class="lp-body"><p>Le problème est rarement l'outil. Le problème est souvent l'absence de stratégie. Beaucoup cherchent l'application parfaite alors qu'ils n'ont pas encore défini leur processus.</p></div>
+    <div class="lp-callout"><strong>Règle d'or :</strong> Les outils doivent servir ton système. Ton système ne doit pas servir les outils.</div>
+
+    <div class="lp-h2">Erreur 3 — Créer sans objectif</div>
+    <div class="lp-body"><p>Créer sans intention crée du bruit. Avant chaque contenu, demande-toi : pour attirer ? éduquer ? convertir ? fidéliser ?</p></div>
+
+    <div class="lp-h2">Erreur 4 — Négliger les données</div>
+    <div class="lp-body"><p>Les chiffres racontent une histoire. Sans données, tu pilotes à l'aveugle. Indicateurs minimum : portée, clics, taux d'ouverture, conversion, ventes.</p></div>
+
+    <div class="lp-h2">Erreur 5 — Automatiser le chaos</div>
+    <div class="lp-body"><p>L'automatisation amplifie ce qui existe déjà. Un système désorganisé automatisé devient simplement un système désorganisé plus rapide.</p></div>
+    <div class="lp-callout"><strong>Ordre impératif :</strong> Structure d'abord → Automatise ensuite. L'IA ne corrige pas un mauvais système, elle l'amplifie.</div>
+
+    <div class="lp-quote">« Structure d'abord. Vitesse ensuite. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l2')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l3'); go('l4')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L4 -->
+  <div id="l4" class="lesson-page">
+    <div class="lp-eyebrow">Module 02 · Leçon 2</div>
+    <div class="lp-title">Comment l'IA Peut T'aider au Quotidien</div>
+    <div class="lp-subtitle">5 domaines où l'impact est immédiat et mesurable.</div>
+
+    <div class="lp-callout">L'IA n'est pas un outil magique. C'est un accélérateur. Elle te permet d'éliminer la charge mentale quotidienne et de te concentrer sur ce qui crée vraiment de la valeur.</div>
+
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="lp-card-title">01 · Création de Contenu</div>
+        <div class="lp-card-body">Génère des idées, scripts vidéo, emails, titres, hooks et descriptions. Une semaine de contenu en moins de 20 minutes.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">02 · Gestion des Emails</div>
+        <div class="lp-card-body">Une séquence email automatisée peut accueillir, éduquer, vendre et relancer — même pendant ton sommeil.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">03 · Prospection</div>
+        <div class="lp-card-body">Qualifier des prospects, filtrer des demandes, répondre automatiquement et organiser les contacts.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">04 · Analyse</div>
+        <div class="lp-card-body">Identifier les contenus qui performent, les offres les plus rentables et les comportements utilisateurs clés.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">05 · Service Client</div>
+        <div class="lp-card-body">Réponses automatiques, FAQ, suivi client et collecte d'informations — sans mobiliser ton attention.</div>
+      </div>
+    </div>
+
+    <div class="lp-quote">« L'IA n'est pas ton assistante. C'est ton département invisible. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l3')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l4'); go('l5')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L5 -->
+  <div id="l5" class="lesson-page">
+    <div class="lp-eyebrow">Module 03 · Leçon 1</div>
+    <div class="lp-title">Les 10 Outils IA Indispensables</div>
+    <div class="lp-subtitle">Ce n'est pas le nombre d'outils qui fait la différence — c'est la manière dont tu les connectes.</div>
+
+    <div class="lp-tool">
+      <div class="lp-tool-num">01</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">ChatGPT</div>
+        <div class="lp-tool-use">Rédige des emails, des scripts vidéo, des accroches Instagram et des stratégies de contenu en quelques secondes. C'est l'outil le plus polyvalent de l'écosystème IA.</div>
+        <div class="lp-tool-case">→ Planifier une semaine entière de contenu en moins de 20 minutes, avec des angles différents pour chaque publication. Idéal pour surmonter le syndrome de la page blanche et accélérer ta production.</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">02</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Notion AI</div>
+        <div class="lp-tool-use">Centralise toute ta documentation, tes processus et tes idées dans un espace intelligent. L'IA intégrée résume, reformule et génère du contenu directement dans tes pages.</div>
+        <div class="lp-tool-case">→ Créer une base de connaissances interne structurée, accessible à toute ton équipe ou à toi seule. Un outil indispensable pour documenter ton système et gagner en clarté.</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">03</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Canva AI</div>
+        <div class="lp-tool-use">Génère des visuels professionnels sans compétences en design grâce à l'intelligence artificielle intégrée. Crée des carrousels, des stories, des bannières et des présentations en quelques clics.</div>
+        <div class="lp-tool-case">→ Produire une série de 10 carrousels Instagram cohérents en moins d'une heure. Le rendu est professionnel et entièrement personnalisable à ton identité visuelle.</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">04</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Make</div>
+        <div class="lp-tool-use">Automatise des flux complexes entre tes applications sans écrire une seule ligne de code. Connecte Instagram, ton CRM, ta liste email et tes outils de facturation dans un seul workflow.</div>
+        <div class="lp-tool-case">→ Chaque nouveau lead Instagram est automatiquement ajouté à ta liste email et reçoit une séquence de bienvenue. Un levier puissant pour construire un système 100% automatisé.</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">05</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Zapier</div>
+        <div class="lp-tool-use">L'outil d'automatisation le plus accessible du marché, idéal pour les débutantes. Connecte plus de 5 000 applications entre elles sans aucune compétence technique.</div>
+        <div class="lp-tool-case">→ Chaque fois qu'un formulaire est rempli sur ton site, un email de confirmation est envoyé et une tâche est créée dans Notion. Simple, rapide et redoutablement efficace.</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">06</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Manychat</div>
+        <div class="lp-tool-use">Automatise tes conversations Instagram, Facebook Messenger et WhatsApp.</div>
+        <div class="lp-tool-case">→ Commentaire "GUIDE" → lead magnet envoyé automatiquement en DM</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">07</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Systeme.io</div>
+        <div class="lp-tool-use">Plateforme tout-en-un pour tunnels de vente, email marketing, formations en ligne et automatisations.</div>
+        <div class="lp-tool-case">→ Formation en ligne complète avec page de vente, paiement et accès automatique</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">08</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">CapCut AI</div>
+        <div class="lp-tool-use">Monte tes vidéos automatiquement avec sous-titres, transitions, effets et musique générés en un clic.</div>
+        <div class="lp-tool-case">→ 10 minutes brutes → vidéo montée et sous-titrée en moins de 5 minutes</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">09</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Claude</div>
+        <div class="lp-tool-use">Spécialisé dans le traitement de textes longs et complexes. Rédige des formations, études de cas, analyses approfondies.</div>
+        <div class="lp-tool-case">→ Rapport 50 pages → résumé structuré avec points clés en quelques secondes</div>
+      </div>
+    </div>
+    <div class="lp-tool">
+      <div class="lp-tool-num">10</div>
+      <div class="lp-tool-content">
+        <div class="lp-tool-name">Perplexity</div>
+        <div class="lp-tool-use">Moteur de recherche intelligent qui cite ses sources et synthétise l'information en temps réel.</div>
+        <div class="lp-tool-case">→ Tendances secteur → synthèse structurée prête à intégrer dans ton contenu</div>
+      </div>
+    </div>
+
+    <div class="lp-callout"><strong>Principe :</strong> Ces outils sont des briques. C'est leur combinaison intelligente qui crée un système puissant.</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l4')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l5'); go('l6')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L6 -->
+  <div id="l6" class="lesson-page">
+    <div class="lp-eyebrow">Module 03 · Leçon 2</div>
+    <div class="lp-title">Construire ton Premier Système Automatique</div>
+    <div class="lp-subtitle">Un système efficace n'est pas forcément complexe. Il est bien connecté.</div>
+
+    <div class="lp-callout">La plupart des entrepreneurs qui automatisent leur business ne le font pas avec des dizaines d'outils — ils le font avec quelques éléments bien connectés, exécutés de manière constante.</div>
+
+    <div class="lp-h2">Le système en 5 étapes</div>
+    <div class="lp-steps">
+      <div class="lp-step">
+        <div class="lp-step-n">01</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Attirer une audience</div>
+          <div class="lp-step-desc">Créer du contenu utile, régulier et ciblé qui répond aux questions de ton audience idéale.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">02</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Capturer un contact</div>
+          <div class="lp-step-desc">Proposer un guide gratuit ou un lead magnet en échange d'une adresse email.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">03</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Créer une relation</div>
+          <div class="lp-step-desc">Envoyer automatiquement une séquence email qui apporte de la valeur avant de vendre.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">04</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Présenter une offre</div>
+          <div class="lp-step-desc">Ne vends pas immédiatement. Apporte d'abord de la valeur, puis présente ton offre naturellement au moment où ton prospect est prêt.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">05</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Fidéliser</div>
+          <div class="lp-step-desc">Un client satisfait reste souvent plus rentable qu'un nouveau client. Séquences de suivi, offres exclusives, contenus réservés.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-h2">Exemple de flux automatisé</div>
+    <div class="lp-callout">
+      Nouvel abonné → Message Manychat → Téléchargement guide → Capture email → Séquence 5 jours → Offre découverte → Suivi client
+    </div>
+
+    <div class="lp-quote">« Un système simple exécuté constamment gagne contre un système complexe jamais terminé. »</div>
+
+    <div class="lp-body">
+      <p>Ce système en 5 étapes constitue la fondation de tout business digital automatisé. Une fois chaque étape mise en place et reliée aux autres, l'ensemble travaille pour toi 24h/24, 7j/7. Tu n'as plus besoin d'être présente à chaque instant pour que ton activité génère des résultats.</p>
+      <p>L'objectif n'est pas d'être parfaite dès le premier jour. Commence avec une version simple et fonctionnelle, puis améliore chaque maillon au fil du temps. Les entrepreneurs qui réussissent ne sont pas ceux qui ont le système le plus complexe — ce sont ceux qui ont le système le plus constant. Lance, teste, ajuste et itère.</p>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l5')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l6'); go('l7')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L7 -->
+  <div id="l7" class="lesson-page">
+    <div class="lp-eyebrow">Module 04 · Leçon 1</div>
+    <div class="lp-title">Mini Plan d'Action sur 7 Jours</div>
+    <div class="lp-subtitle">La compréhension sans action ne change rien. Ce plan te fait passer à la pratique immédiatement.</div>
+
+    <div class="lp-day-grid">
+      <div class="lp-day">
+        <div class="lp-day-label">J1</div>
+        <div class="lp-day-title">Audit</div>
+        <div class="lp-day-desc">Liste toutes tes tâches. Identifie ce qui prend du temps et ce qui peut être automatisé.</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">J2</div>
+        <div class="lp-day-title">Objectif</div>
+        <div class="lp-day-desc">Temps ? Ventes ? Croissance ? Un objectif clair oriente toutes tes décisions.</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">J3</div>
+        <div class="lp-day-title">Outils</div>
+        <div class="lp-day-desc">Sélectionne 2-3 outils maximum adaptés à ton objectif. Ne te disperse pas.</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">J4</div>
+        <div class="lp-day-title">Workflow</div>
+        <div class="lp-day-desc">Dessine le flux de ton système : de l'attraction à la conversion.</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">J5</div>
+        <div class="lp-day-title">Contenu IA</div>
+        <div class="lp-day-desc">Crée ton premier contenu assisté par IA en moins de 30 minutes.</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">J6</div>
+        <div class="lp-day-title">Résultats</div>
+        <div class="lp-day-desc">Analyse ce qui fonctionne. Quels contenus performent ? Quels messages résonnent ?</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">J7</div>
+        <div class="lp-day-title">Optimise</div>
+        <div class="lp-day-desc">Supprime ce qui ne sert pas. Renforce ce qui fonctionne. Prépare la semaine suivante.</div>
+      </div>
+    </div>
+
+    <div class="lp-quote">« L'important n'est pas la perfection — c'est le mouvement. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l6')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l7'); go('l8')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L8 -->
+  <div id="l8" class="lesson-page">
+    <div class="lp-eyebrow">Module 04 · Leçon 2</div>
+    <div class="lp-title">Étude de Cas Détaillée</div>
+    <div class="lp-subtitle">Comment un système simple a transformé une activité en 60 jours.</div>
+
+    <div class="lp-callout">
+      <strong>Profil :</strong> Entrepreneure indépendante, 32 ans — 5 000 abonnés Instagram.<br><br>
+      <strong>Problèmes initiaux :</strong> Manque de temps chronique · Réponses manuelles à chaque message · Publication irrégulière · Peu de suivi des prospects
+    </div>
+
+    <div class="lp-h2">Système mis en place</div>
+    <div class="lp-callout">
+      Instagram → Manychat → Guide gratuit → Capture email → Séquence automatique 5 jours → Offre découverte
+    </div>
+
+    <div class="lp-h2">Outils utilisés</div>
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="lp-card-title">Notion</div>
+        <div class="lp-card-body">Organisation et documentation de tous les processus</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Manychat</div>
+        <div class="lp-card-body">Automatisation Instagram et distribution du lead magnet</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">ActiveCampaign</div>
+        <div class="lp-card-body">Email marketing et séquences automatisées</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">ChatGPT</div>
+        <div class="lp-card-body">Création de contenu et rédaction des emails</div>
+      </div>
+    </div>
+
+    <div class="lp-h2">Résultats après 60 jours</div>
+    <div class="lp-stat-row">
+      <div class="lp-stat">
+        <span class="lp-stat-value">+140%</span>
+        <div class="lp-stat-label">d'engagement Instagram</div>
+      </div>
+      <div class="lp-stat">
+        <span class="lp-stat-value">+37%</span>
+        <div class="lp-stat-label">de ventes générées</div>
+      </div>
+      <div class="lp-stat">
+        <span class="lp-stat-value">12h</span>
+        <div class="lp-stat-label">économisées chaque semaine</div>
+      </div>
+    </div>
+
+    <div class="lp-quote">« Le succès ne vient pas de systèmes complexes — il vient d'une exécution constante sur des bases simples. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l7')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l8'); go('l9')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L9 -->
+  <div id="l9" class="lesson-page">
+    <div class="lp-eyebrow">Module 04 · Leçon 3</div>
+    <div class="lp-title">Construire ta Machine Digitale</div>
+    <div class="lp-subtitle">Chaque action que tu prends aujourd'hui est un actif durable pour demain.</div>
+
+    <div class="lp-body"><p>Tu n'as pas besoin d'être développeur ni d'être un expert en technologie. Tu dois devenir l'architecte de ton activité, celui qui transforme son énergie en actifs durables. Les entrepreneurs qui réussiront demain ne seront pas seulement ceux qui travaillent plus : ce seront ceux qui construisent des systèmes qui travaillent pour eux.</p></div>
+
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque Contenu</div>
+        <div class="lp-card-body">Devient un actif qui attire, éduque et convertit en continu — même quand tu dors. Une publication bien construite peut générer des leads pendant des mois.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque Email</div>
+        <div class="lp-card-body">Devient une pièce d'un système de vente qui travaille pour toi 24h/24. Ton email marketing est ton commercial le plus fiable.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque Processus</div>
+        <div class="lp-card-body">Documenté et automatisé, il te libère de l'opérationnel pour travailler sur ton business plutôt que dedans.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque Automatisation</div>
+        <div class="lp-card-body">Devient un multiplicateur qui amplifie ton impact sans multiplier ton temps. C'est la définition d'un business scalable.</div>
+      </div>
+    </div>
+
+    <div class="lp-callout">
+      <strong>L'objectif n'est pas de remplacer ton énergie.</strong><br>
+      L'objectif est de multiplier son impact. Plus ces actifs grandissent, moins ton activité dépend uniquement de ton temps.
+    </div>
+
+    <div class="lp-quote">« L'IA ne te rend pas plus puissante. Elle amplifie ce que tu es déjà. »</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l8')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l9'); go('l10')">Marquer comme lu · Bonus →</button>
+    </div>
+  </div>
+
+  <!-- L10 BONUS PROMPTS -->
+  <div id="l10" class="lesson-page">
+    <div class="lp-eyebrow">Module 05 · Bonus 1</div>
+    <div class="lp-title">25 Prompts IA Prêts à l'Emploi</div>
+    <div class="lp-subtitle">Copie, adapte, utilise immédiatement. L'IA est aussi puissante que les instructions qu'on lui donne.</div>
+
+    <div class="lp-h3">Création de Contenu</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 1</div>Agis comme un expert marketing spécialisé dans [niche]. Donne-moi 20 idées de contenus Instagram destinées à une audience qui souhaite [objectif].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 2</div>Donne-moi 15 hooks puissants capables d'arrêter le scroll pour une audience [avatar].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 3</div>Transforme cette idée en carrousel Instagram de 8 slides : [insérer idée].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 4</div>Écris un script TikTok court avec un hook fort, un développement et un appel à l'action.</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 5</div>Transforme ce texte en publication plus engageante : [texte].</div>
+
+    <div class="lp-h3">Email Marketing</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 6</div>Écris une séquence email de 5 jours destinée à convertir un prospect froid en client.</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 7</div>Écris un email de relance après abandon de panier.</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 8</div>Écris un email qui présente une offre sans donner l'impression de vendre agressivement.</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 9</div>Crée un objet email avec fort taux d'ouverture pour [sujet].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 10</div>Réécris cet email avec plus d'émotion et plus de clarté : [texte].</div>
+
+    <div class="lp-h3">Offre & Positionnement</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 11</div>Crée une offre irrésistible destinée à [avatar client].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 12</div>Identifie les problèmes principaux rencontrés par [avatar].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 13</div>Trouve 10 angles marketing pour vendre : [produit].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 14</div>Crée une promesse claire et forte pour : [activité].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 15</div>Donne-moi trois propositions d'offres premium adaptées à mon marché.</div>
+
+    <div class="lp-h3">Productivité</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 16</div>Construis mon planning idéal sur une semaine pour maximiser ma productivité en tant qu'entrepreneure digitale.</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 17</div>Organise cette liste de tâches par priorité : [insérer tâches].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 18</div>Crée une routine quotidienne efficace pour une entrepreneure digitale qui souhaite équilibrer création et gestion.</div>
+
+    <div class="lp-h3">Ventes</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 19</div>Simule une conversation de vente naturelle avec un prospect hésitant pour mon offre [détails].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 20</div>Donne-moi les objections principales qu'un client pourrait avoir face à mon offre [détails].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 21</div>Écris des réponses simples et convaincantes à ces objections : [liste].</div>
+
+    <div class="lp-h3">Stratégie</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 22</div>Analyse mon activité et identifie les opportunités de croissance les plus rapides : [détails].</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 23</div>Donne-moi un plan de croissance concret et actionnable sur 30 jours.</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 24</div>Quels processus pourrais-je automatiser en priorité dans mon activité pour gagner le plus de temps ?</div>
+    <div class="lp-prompt"><div class="lp-prompt-label">Prompt 25</div>Agis comme un consultant business expert et construis une stratégie complète de croissance pour : [activité].</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l9')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l10'); go('l11')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L11 AUDIT -->
+  <div id="l11" class="lesson-page">
+    <div class="lp-eyebrow">Module 05 · Bonus 2</div>
+    <div class="lp-title">Audit Rapide de ton Business</div>
+    <div class="lp-subtitle">Coche honnêtement chaque point pour obtenir une vision claire de ton état actuel.</div>
+
+    <div class="lp-h3">Offre</div>
+    <div class="lp-checklist">
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon offre est claire et compréhensible en une phrase</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je peux expliquer mon activité simplement</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon client idéal est précisément défini</span></div>
+    </div>
+
+    <div class="lp-h3">Contenu</div>
+    <div class="lp-checklist">
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je publie régulièrement et de manière cohérente</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon contenu attire la bonne audience</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>J'ai une stratégie de contenu claire</span></div>
+    </div>
+
+    <div class="lp-h3">Automatisation</div>
+    <div class="lp-checklist">
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>J'utilise un CRM pour gérer mes contacts</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>J'ai une séquence email en place</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>J'automatise certaines tâches répétitives</span></div>
+    </div>
+
+    <div class="lp-h3">Vente & Données</div>
+    <div class="lp-checklist">
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>J'ai un tunnel de vente clair et fonctionnel</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je connais mon taux de conversion</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je fais un suivi client systématique</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mes tâches sont structurées et priorisées</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je mesure mes résultats chaque semaine</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je prends des décisions basées sur des données</span></div>
+    </div>
+
+    <div class="lp-h2">Score & Interprétation</div>
+    <table class="lp-table">
+      <tr><th>Score</th><th>Situation</th></tr>
+      <tr><td>0–5</td><td>Tu construis encore les fondations. Moment idéal pour poser les bases solides.</td></tr>
+      <tr><td>6–10</td><td>Tu avances mais certaines zones ralentissent ta croissance. Identifie les priorités.</td></tr>
+      <tr><td>11–15</td><td>Ton système commence à être solide. Continue à optimiser et à automatiser davantage.</td></tr>
+      <tr><td>15+</td><td>Tu construis une vraie machine digitale. Passe à l'étape suivante : scaler.</td></tr>
+    </table>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l10')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l11'); go('l12')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L12 CHECKLIST -->
+  <div id="l12" class="lesson-page">
+    <div class="lp-eyebrow">Module 05 · Bonus 3</div>
+    <div class="lp-title">Checklist Système</div>
+    <div class="lp-subtitle">Les fondamentaux à valider avant de complexifier quoi que ce soit.</div>
+
+    <div class="lp-h3">Les Fondations</div>
+    <div class="lp-checklist">
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon offre est claire et bien positionnée</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon audience cible est précisément définie</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon contenu a un objectif précis à chaque publication</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon tunnel de vente est simple et fonctionnel</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon CRM est installé et utilisé régulièrement</span></div>
+    </div>
+
+    <div class="lp-h3">Les Systèmes</div>
+    <div class="lp-checklist">
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Ma séquence email est créée et active</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mon suivi prospect est organisé et systématique</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Mes KPI sont définis et suivis régulièrement</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>J'automatise les tâches répétitives à faible valeur</span></div>
+      <div class="lp-check-item"><div class="lp-check-box" onclick="toggleCheck(this)"></div><span>Je mesure mes résultats chaque semaine sans exception</span></div>
+    </div>
+
+    <div class="lp-callout">Reviens à cette checklist chaque mois pour évaluer ta progression. Les cases non cochées ne sont pas des échecs — ce sont des opportunités d'amélioration clairement identifiées. Un entrepreneur structuré sait exactement où il en est et où il doit aller.</div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l11')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l12'); go('l13')">Marquer comme lu · Suivant →</button>
+    </div>
+  </div>
+
+  <!-- L13 PLANIFICATEUR -->
+  <div id="l13" class="lesson-page">
+    <div class="lp-eyebrow">Module 05 · Bonus 4</div>
+    <div class="lp-title">Planificateur Hebdomadaire</div>
+    <div class="lp-subtitle">La productivité n'est pas une question de volonté. C'est une question de structure.</div>
+
+    <div class="lp-day-grid" style="grid-template-columns: repeat(7, 1fr)">
+      <div class="lp-day">
+        <div class="lp-day-label">Lundi</div>
+        <div class="lp-day-title">Stratégie</div>
+        <div class="lp-day-desc">Analyse la semaine précédente, définis tes priorités</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">Mardi</div>
+        <div class="lp-day-title">Contenu</div>
+        <div class="lp-day-desc">Production de contenu avec l'IA</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">Mercredi</div>
+        <div class="lp-day-title">Auto</div>
+        <div class="lp-day-desc">Améliorations et nouvelles automatisations</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">Jeudi</div>
+        <div class="lp-day-title">Ventes</div>
+        <div class="lp-day-desc">Relances, conversions, suivi clients</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">Vendredi</div>
+        <div class="lp-day-title">Analyse</div>
+        <div class="lp-day-desc">Mesure ce qui a fonctionné</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">Samedi</div>
+        <div class="lp-day-title">Apprentissage</div>
+        <div class="lp-day-desc">Formation, veille, montée en compétences</div>
+      </div>
+      <div class="lp-day">
+        <div class="lp-day-label">Dimanche</div>
+        <div class="lp-day-title">Planif</div>
+        <div class="lp-day-desc">Prépare ta semaine. 3 priorités claires.</div>
+      </div>
+    </div>
+
+    <div class="lp-callout"><strong>Ce rythme n'est pas une contrainte — c'est une libération.</strong><br>En sachant exactement quoi faire chaque jour, tu élimines la charge mentale de décider et tu maximises ton énergie créative. La régularité est le moteur de tout système performant. Ce n'est pas ce que tu fais une fois qui change ton business — c'est ce que tu fais chaque semaine, sans exception.</div>
+
+    <div style="background: var(--surface2); border: 1px solid var(--gold-border); padding: 32px; text-align: center; margin-top: 40px;">
+      <div style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 16px;">FÉLICITATIONS</div>
+      <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px;">Formation complétée ✓</div>
+      <div style="font-size: 14px; color: var(--text-dim); line-height: 1.7; max-width: 440px; margin: 0 auto;">Tu as maintenant les fondations, les outils et le plan d'action pour construire ta machine digitale. L'ère des systèmes a commencé.</div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l12')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l13'); go('l14')">Marquer comme lu · Conclusion →</button>
+    </div>
+  </div>
+
+  <!-- L14 CONCLUSION -->
+  <div id="l14" class="lesson-page">
+    <div class="lp-eyebrow">Conclusion</div>
+    <div class="lp-title">L'Ère des Systèmes a Commencé</div>
+    <div class="lp-subtitle">Le futur appartient à ceux qui construisent intelligemment.</div>
+
+    <div class="lp-body">
+      <p>Pendant longtemps, les entrepreneurs ont appris à travailler davantage pour obtenir davantage. Aujourd'hui, les règles évoluent. Le véritable levier n'est plus seulement l'effort — le véritable levier est la structure.</p>
+    </div>
+
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque contenu que tu crées</div>
+        <div class="lp-card-body">Devient un actif qui travaille pour toi en continu, attirant de nouveaux prospects même quand tu n'es pas actif.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque processus que tu construis</div>
+        <div class="lp-card-body">Devient une routine automatisée qui libère ton énergie pour les décisions à haute valeur ajoutée.</div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-card-title">Chaque automatisation que tu mets en place</div>
+        <div class="lp-card-body">Devient un multiplicateur silencieux qui amplifie ton impact sans multiplier ton temps de travail.</div>
+      </div>
+    </div>
+
+    <div class="lp-callout">
+      <strong>Ce guide t'a donné une base.</strong> Il t'a montré comment penser différemment — comment voir ton business comme un système plutôt qu'une succession de tâches. Mais la compréhension seule ne change rien. L'exécution transforme tout.
+      <br><br>
+      Commence simplement. Construis une première brique. Puis une deuxième. Puis une troisième. Avec le temps, tu ne construiras plus uniquement un business. Tu construiras une machine capable de travailler avec toi — et parfois même pour toi.
+    </div>
+
+    <div class="lp-h2">La prochaine étape t'appartient</div>
+    <div class="lp-steps">
+      <div class="lp-step">
+        <div class="lp-step-n">01</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Reviens aux bases</div>
+          <div class="lp-step-desc">Relis les chapitres qui résonnent le plus avec ta situation actuelle et applique un principe à la fois.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">02</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Lance-toi dès aujourd'hui</div>
+          <div class="lp-step-desc">Commence par l'audit de ton business. Une heure aujourd'hui peut changer la trajectoire de ton activité.</div>
+        </div>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step-n">03</div>
+        <div class="lp-step-content">
+          <div class="lp-step-title">Partage et évolue</div>
+          <div class="lp-step-desc">Rejoins une communauté d'entrepreneurs qui construisent des systèmes et échangent sur leurs avancées.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-quote">« Ton business ne grandira pas parce que tu travailles davantage. Il grandira parce que tu auras construit quelque chose capable de grandir avec toi. »</div>
+
+    <div style="background: var(--surface2); border: 1px solid var(--gold-border); padding: 32px; text-align: center; margin-top: 40px;">
+      <div style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 16px;">FORMATION COMPLÉTÉE ✓</div>
+      <div style="font-size: 22px; font-weight: 700; margin-bottom: 12px;">CORE OS IA</div>
+      <div style="font-size: 13px; color: var(--text-dim); line-height: 1.7; max-width: 440px; margin: 0 auto;">Tu as maintenant toutes les clés pour transformer ton activité. L'IA ne te rend pas plus puissante — elle amplifie ce que tu es déjà.</div>
+      <div style="margin-top: 20px; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted);">© 2026 Kemora Agency — Tous droits réservés</div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="nav-btn" onclick="go('l13')">← Précédent</button>
+      <button class="nav-btn primary" onclick="markDone('l14')">✓ Formation complétée</button>
+    </div>
+  </div>
+
+</div><!-- end content-area -->
+</div><!-- end layout -->
+
+<script>
+const ORDER = ['l0','l1','l2','l3','l4','l5','l6','l7','l8','l9','l10','l11','l12','l13','l14'];
+let current = 'l0';
+const done = new Set();
+
+function go(id) {
+  // Hide current
+  document.getElementById(current).classList.remove('active');
+  document.querySelector(`[data-id="${current}"]`)?.classList.remove('active');
+  // Show new
+  current = id;
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[data-id="${id}"]`)?.classList.add('active');
+  // Scroll top
+  document.getElementById('contentArea').scrollTop = 0;
+  // Close sidebar on mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+}
+
+function markDone(id) {
+  done.add(id);
+  const chk = document.getElementById('chk-' + id);
+  if (chk) { chk.textContent = '✓'; }
+  const btn = document.querySelector(`[data-id="${id}"]`);
+  if (btn) btn.classList.add('done');
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = done.size;
+  document.getElementById('doneCount').textContent = count;
+  document.getElementById('progressBar').style.width = (count / 15 * 100) + '%';
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+</body>
+</html>
